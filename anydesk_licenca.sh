@@ -40,11 +40,16 @@ cp -r "$THUMB_DIR" "$TEMP_DIR/thumbnails" 2>/dev/null
 rm -f "$SERVICE_CONF_SYS" "$SERVICE_CONF_USER"
 rm -rf "$HOME/.anydesk"/*
 
-start_any
-
-# Aguarda system.conf aparecer com ID válido (simulação)
+# Aguarda system.conf aparecer com ID válido (com timeout)
+TIMEOUT=30
+COUNTER=0
 while ! grep -q "ad.anynet.id=" /etc/anydesk/system.conf 2>/dev/null; do
     sleep 1
+    COUNTER=$((COUNTER+1))
+    if [ $COUNTER -ge $TIMEOUT ]; then
+        echo "Timeout aguardando system.conf"
+        break
+    fi
 done
 
 # Restaurar dados
