@@ -33,13 +33,18 @@ del /f /a /q "%APPDATA%\AnyDesk\*"
 call :start_any
 
 :lic
-:: Aguarda até o arquivo system.conf conter a linha "ad.anynet.id="
+:: Aguarda até o arquivo system.conf conter a linha "ad.anynet.id=" (timeout de 30s)
+set lic_count=0
 :wait_lic
 find "ad.anynet.id=" "%ALLUSERSPROFILE%\AnyDesk\system.conf" >nul 2>&1
-if %errorlevel% neq 0 (
-    timeout /t 1 >nul
-    goto wait_lic
-)
+if %errorlevel%==0 goto lic_done
+
+timeout /t 1 >nul
+set /a lic_count+=1
+if %lic_count% lss 30 goto wait_lic
+
+echo Tempo esgotado aguardando novo ID do AnyDesk.
+:lic_done
 
 :: Restaura os arquivos de configuração
 call :stop_any
